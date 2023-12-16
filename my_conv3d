@@ -1,0 +1,77 @@
+import numpy as np
+
+def Convolution3D(input, weight, bias=None, stride=1, padding=0):
+    # Проверяем размерность входных данных
+    assert input.ndim == 5, "Input should have 5 dimensions: (batch, channels, depth, height, width)"
+    assert weight.ndim == 5, "Weight should have 5 dimensions: (output_channels, input_channels, kernel_depth, kernel_height, kernel_width)"
+    
+    # Получаем размеры входных данных
+    batch_size, input_channels, input_depth, input_height, input_width = input.shape
+    output_channels, _, kernel_depth, kernel_height, kernel_width = weight.shape
+    
+    # Вычисляем размеры выходного тензора
+    output_depth = (input_depth - kernel_depth + 2 * padding) // stride + 1
+    output_height = (input_height - kernel_height + 2 * padding) // stride + 1
+    output_width = (input_width - kernel_width + 2 * padding) // stride + 1
+    
+    # Инициализируем выходной тензор
+    output = np.zeros((batch_size, output_channels, output_depth, output_height, output_width))
+    
+    # Выполняем трехмерную свертку
+    for b in range(batch_size):
+        for c_out in range(output_channels):
+            for d in range(output_depth):
+                for h in range(output_height):
+                    for w in range(output_width):
+                        for c_in in range(input_channels):
+                            for kd in range(kernel_depth):
+                                for kh in range(kernel_height):
+                                    for kw in range(kernel_width):
+                                        input_d = d * stride + kd - padding
+                                        input_h = h * stride + kh - padding
+                                        input_w = w * stride + kw - padding
+                                        if (0 <= input_d < input_depth and 
+                                            0 <= input_h < input_height and 
+                                            0 <= input_w < input_width):
+                                            output[b, c_out, d, h, w] += (
+                                                input[b, c_in, input_d, input_h, input_w] *
+                                                weight[c_out, c_in, kd, kh, kw]
+                                            )
+    
+    # Добавляем смещение (bias), если есть
+    if bias is not None:
+        output += bias.reshape((1, output_channels, 1, 1, 1))
+    
+    return output
+
+
+# Тестовые данные
+input = np.random.rand(2, 3, 4, 5, 5)  # input.shape = (batch_size, input_channels, input_depth, input_height, input_width)
+weight = np.random.rand(4, 3, 2, 3, 3)  # weight.shape = (output_channels, input_channels, kernel_depth, kernel_height, kernel_width)
+
+input_1 = np.random.rand(1, 1, 5, 5, 5)
+weight_1 = np.random.rand(1, 1, 3, 3, 3)
+
+input_2 = np.random.rand(3, 2, 4, 6, 6)
+weight_2 = np.random.rand(2, 2, 3, 3, 3)
+
+input_3 = np.random.rand(1, 3, 6, 6, 6)
+weight_3 = np.random.rand(2, 3, 5, 5, 5)
+
+input_4 = np.random.rand(2, 1, 7, 7, 7)
+weight_4 = np.random.rand(3, 1, 4, 4, 4)
+# Выполняем свертку
+output = Convolution3D(input, weight)
+print(output.shape)  # Ожидаемый вывод: (2, 4, 3, 3, 3)
+
+output_1 = Convolution3D(input_1, weight_1)
+print(output_1.shape)  # Ожидаемый вывод: (1, 1, 3, 3, 3)
+
+output_2 = Convolution3D(input_2, weight_2)
+print(output_2.shape)  # Ожидаемый вывод: (3, 2, 2, 4, 4)
+
+output_3 = Convolution3D(input_3, weight_3)
+print(output_3.shape)  # Ожидаемый вывод: (1, 2, 2, 2, 2)
+
+output_4 = Convolution3D(input_4, weight_4)
+print(output_4.shape)  # Ожидаемый вывод: (2, 3, 4, 4, 4)
