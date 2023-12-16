@@ -1,0 +1,90 @@
+import numpy as np
+from my_conv2d import convolution_2d
+
+def test_convolution_2d_1():
+    # Arrange
+    image = np.array([[1, 2, 3],
+                      [4, 5, 6],
+                      [7, 8, 9]])
+    kernel = np.array([[1, 1],
+                       [1, 1]])
+
+    expected_output = np.array([[12, 16],
+                                [24, 28]])
+
+    # Act
+    output = convolution_2d(image, kernel)
+
+    # Assert
+    assert np.array_equal(output, expected_output)  
+
+
+def test_convolution_2d_2():
+    # Arrange
+    image = np.array([[1, 1, 1, 1],
+                      [1, 1, 1, 1],
+                      [1, 1, 1, 1],
+                      [1, 1, 1, 1]])
+    kernel = np.array([[1, 1],
+                       [1, 1]])
+
+    expected_output = np.array([[4, 4, 4],
+                                [4, 4, 4],
+                                [4, 4, 4]])
+
+    # Act
+    output = convolution_2d(image, kernel)
+
+    # Assert
+    assert np.array_equal(output, expected_output)
+
+def test_convolution_2d_3():
+    # Arrange
+    image = np.array([[1, 2, 3],
+                      [4, 5, 6],
+                      [7, 8, 9]])
+    kernel = np.array([[0, 0],
+                       [0, 0]])
+
+    expected_output = np.array([[0, 0],
+                                [0, 0]])
+
+    # Act
+    output = convolution_2d(image, kernel)
+
+    # Assert
+    assert np.array_equal(output, expected_output)
+
+def test_convolution_2d_4():
+    # Arrange
+    image = np.array([[1, 0, 1],
+                      [0, 1, 0],
+                      [1, 0, 1]])
+    kernel = np.array([[1, 0],
+                       [0, 1]])
+
+    expected_output = np.array([[2, 0],
+                                [0, 2]])
+
+    # Act
+    output = convolution_2d(image, kernel)
+
+    # Assert
+    assert np.array_equal(output, expected_output)
+
+def test_convolution_2d_5():
+    # Arrange
+    image = np.array([[1, 2, 3, 4],
+                      [5, 6, 7, 8],
+                      [9, 10, 11, 12]])
+    kernel = np.array([[1, 1, 1],
+                       [0, 1, 0],
+                       [-1, -1, -1]])
+
+    expected_output = np.array([[ -18, -17]])
+
+    # Act
+    output = convolution_2d(image, kernel)
+
+    # Assert
+    assert np.array_equal(output, expected_output)
